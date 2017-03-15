@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 from scipy import misc
 import matplotlib.pyplot as plt
 import os.path
-
+import math
 
 # Plot images
 def show_images(img1, img2, img3):
@@ -22,12 +22,27 @@ def show_images(img1, img2, img3):
 
 
 # Load Image
-def load_img(image_path,image_size=None):
-    if image_size is None:
+def load_img(image_path, width=None, height=None):
+    image = mpimg.imread(image_path)
+
+    if width is None and height is None:
         im_H = 224
         im_W = 224
-        image_size = (im_H,im_W)
-    image = mpimg.imread(image_path)
+    elif height is None:
+        im_W = width
+        imshape = image.shape
+        rat = im_W/imshape[1]
+        im_H = math.floor(imshape[0]*rat)
+    elif width is None:
+        im_H = height
+        imshape = image.shape
+        rat = im_H/imshape[0]
+        im_W = math.floor(imshape[1]*rat)
+    else:
+        im_H = height
+        im_W = width
+
+    image_size = (im_H, im_W)
     image = misc.imresize(image, image_size)
     image = image / 255.0
     image = image.astype(np.float32)
@@ -38,7 +53,7 @@ def load_img(image_path,image_size=None):
 def gen_output_path(cont_p, style_p, path):
     k = 1
     output_fname = cont_p.rsplit('.', 1)[0] + '&' + style_p.rsplit('.', 1)[0]+str(k)
-    while os.path.exists(path+output_fname):
+    while os.path.exists(path+output_fname+'.jpg'):
         k += 1
         output_fname = output_fname[:-1]+str(k)
     return path+output_fname
