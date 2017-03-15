@@ -1,5 +1,26 @@
 # style_transfer
-Implementation of neural style paper
 
-This is a basic implementation of the papar "A Neural Algorithm of Artistic Style".
-This commit is still not finalized, I will add instructions, examples, credits and dependencies soon .
+This is a basic Tensorflow implementation of the papar ["A Neural Algorithm of Artistic Style"](https://arxiv.org/abs/1508.06576).
+The algorithm renders an image that keeps the content of one reference image while copying the style of another. For example:
+
+Content image + Style image:
+
+
+<img src="images/content/eagle.jpg" height="250"> <img src="images/style/psy2.jpg" height="250">
+
+
+
+Result:
+
+<img src="images/result/eagle3/eagle&psy21.jpg">
+
+Content image + Style image:
+
+
+<img src="images/content/night_king.jpg" height="250"> <img src="images/style/stars.jpg" height="250">
+
+
+
+Result:
+
+<img src="images/result/nk3/night_king&stars1.jpg">
