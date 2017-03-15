@@ -2,7 +2,8 @@
 
 This is a basic Tensorflow implementation of the papar ["A Neural Algorithm of Artistic Style"](https://arxiv.org/abs/1508.06576). 
 
-**This is a first draft of the commit, I will try to add better documentation, examples and functionality soon**
+**This is a first draft of the commit, I will try to add better documentation, examples and functionality soon.**
+
 The algorithm renders an image that keeps the content of one reference image while copying the style of another. For example:
 
 
