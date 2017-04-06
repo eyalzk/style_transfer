@@ -39,4 +39,4 @@ All parameters are optional and have default values:
 ## Acknowledgements 
 For the trained VGG19 I have used the implementation of [mechrisaa](https://github.com/machrisaa/tensorflow-vgg).
 
-The images are old ones I found on my computer and are probably copyrighted, I assume no copyrights over the images and will try to trace their source soon to add credit.
+The images are old ones I found on my computer and are probably copyrighted, I claim no copyrights over the images and will try to trace their source soon to add credit.
