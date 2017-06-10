@@ -2,7 +2,7 @@
 
 This is a basic Tensorflow implementation of the papar ["A Neural Algorithm of Artistic Style"](https://arxiv.org/abs/1508.06576). 
 
-**This is a first draft of the commit, I will try to add better documentation, examples and functionality soon.**
+**This is a first draft of the commit, I will try to add better documentation, examples and functionality when I will have the time.**
 
 The algorithm renders an image that keeps the content of one reference image while copying the style of another. For example:
 
@@ -18,6 +18,7 @@ The algorithm renders an image that keeps the content of one reference image whi
 
 <img src="images/result/night_king&stars1.jpg" width="790">
 
+More examples can be found [here](https://www.facebook.com/eyalzk/media_set?set=a.10210230266052920.1228091817&type=3).
 
 There's plenty of great explanations on the web regarding how this works so I won't go into detail here... 
 
@@ -27,7 +28,7 @@ There's plenty of great explanations on the web regarding how this works so I wo
 * [tensorflow-vgg](https://github.com/machrisaa/tensorflow-vgg)
 
 ## Usage:
-For now there aren’t many controllable parameters through the command line, however it is pretty simple to control everything inside the code.
+For now there aren’t many controllable parameters through the command line, however it is pretty simple to control everything from inside the code.
 To run using command line:
 
 `python main.py`
@@ -39,4 +40,11 @@ All parameters are optional and have default values:
 ## Acknowledgements 
 For the trained VGG19 I have used the implementation of [mechrisaa](https://github.com/machrisaa/tensorflow-vgg).
 
-The images are old ones I found on my computer and are probably copyrighted, I claim no copyrights over the images and will try to trace their source soon to add credit.
+I claim no copyrights over the content\style images.
+
+### Photo credits:
+
+1. [Eagle](https://www.flickr.com/photos/jacobmeredith/)
+2. Night King - Game of Thrones, HBO
+3. Stars - ESA/Hubble
+4. [psychedelic art](http://wallpaperspack.info/?p=52239)
