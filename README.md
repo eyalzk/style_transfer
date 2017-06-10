@@ -47,4 +47,4 @@ I claim no copyrights over the content\style images.
 1. [Eagle](https://www.flickr.com/photos/jacobmeredith/)
 2. Night King - Game of Thrones, HBO
 3. Stars - ESA/Hubble
-4. [psychedelic art](http://wallpaperspack.info/?p=52239)
+4. [Psychedelic art](http://wallpaperspack.info/?p=52239)
