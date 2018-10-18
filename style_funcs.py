@@ -50,31 +50,51 @@ def load_img(image_path, width=None, height=None):
 
 
 # Create output path
-def gen_output_path(cont_p, style_p, path):
+def gen_result_path(cont_p, style_p, path):
     k = 1
-    output_fname = cont_p.rsplit('.', 1)[0] + '&' + style_p.rsplit('.', 1)[0]+str(k)
+    content_f = os.path.basename(cont_p)
+    style_f = os.path.basename(style_p)
+
+    output_fname = content_f.rsplit('.', 1)[0] + '&' + style_f.rsplit('.', 1)[0]+str(k)
     while os.path.exists(path+output_fname+'.jpg'):
         k += 1
         output_fname = output_fname[:-1]+str(k)
-    return path+output_fname
+    return path+output_fname+'.jpg'
+
 
 # generate init img
-def gen_init_img(H, W, content, n_rat):
-    content = np.reshape(content, (H, W, 3))
-    # init_img = np.random.normal(0, 0.001, size=[H, W, 3]).astype(np.float32)
-    init_img = np.random.uniform(0.15, 0.85, size=[H, W, 3]).astype(np.float32)
-    # samples = scipy.stats.truncnorm.rvs(
-    #     (lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma, size=N)
-    return init_img*n_rat + content*(1.-n_rat)
+def gen_init_img(height, width, content, noise_ratio):
 
+    content = np.reshape(content, (height, width, 3))
+
+    # init_img = np.random.normal(0, 0.001, size=[H, W, 3]).astype(np.float32)
+    init_img = np.random.uniform(0.15, 0.85, size=[height, width, 3]).astype(np.float32)
+
+    return init_img*noise_ratio + content*(1.-noise_ratio)
+
+
+# # Get layer activations as constant tensors
+# def get_activations(sess, layers):
+#     print('Getting Activations...')
+#     activations = []
+#     acts = sess.run([layer for layer in layers])
+#     for act in acts:
+#         activations.append(tf.constant(act,dtype="float32"))
+#     return activations
 
 # Get layer activations as constant tensors
-def get_activations(sess, layers):
-    activations = []
-    acts = sess.run([layer for layer in layers])
-    for act in acts:
-        activations.append(tf.constant(act,dtype="float32"))
-    return activations
+def get_activations(sess, net, layer_names, img):
+    # Returns a dictionary with layer names and activation tensors
+    print('Getting Activations...')
+    # build net using given image
+    net.build(img, reset_dict=False)
+    # Get tensors of desired layers
+    layers_tensors = [getattr(net, layer_name) for layer_name in layer_names]
+    # get activations and return tf.constants
+    acts = sess.run([layer for layer in layers_tensors])
+    activations = [tf.constant(act,dtype="float32") for act in acts]
+
+    return dict(zip(layer_names,activations))
 
 
 def gram_matrix(layer):
@@ -141,7 +161,8 @@ def optimize_lbfgs(sess, optimizer, loss_, output_img, output_path, plot=False):
             print('Loss at step %d: %f ' % (i, loss_))
         if i % 100 == 0 and i != 0:
             k = i
-            misc.imsave(output_path + str(k) + '.jpg', output_img)
+            save_path = output_path.rsplit('.',1)[0] + str(k) + '.jpg'
+            misc.imsave(save_path, output_img)
             if plot:
                 plt.figure()
                 plt.imshow(output_img)
@@ -149,3 +170,5 @@ def optimize_lbfgs(sess, optimizer, loss_, output_img, output_path, plot=False):
         i += 1
 
     optimizer.minimize(sess, fetches=[loss_, output_img], loss_callback=callback)
+
+
