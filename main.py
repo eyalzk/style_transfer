@@ -59,11 +59,6 @@ def main(run_args):
     # Plot images
     stylf.show_images(content_image, style_image, init_img)
 
-    # # Reshape to batch form
-    # content_image_batch = np.expand_dims(content_image, 0)
-    # style_image_batch = np.expand_dims(style_image, 0)
-    # init_img_batch = np.expand_dims(init_img, 0)
-
     # Prepare Tensorflow graph
     graph = tf.Graph()
     with graph.as_default():
@@ -72,93 +67,49 @@ def main(run_args):
         input_img = tf.Variable(np.expand_dims(init_img, 0), dtype="float32")
         result_img = tf.clip_by_value(tf.squeeze(input_img, [0]), 0, 1)
 
-        # Initialize VGG nets for each image
-        # Todo: Try to avoid creating 3 different models. One possibility is to evaluate all neccesary activations and then place them in tf.constants
-        # vgg_cont = vgg_clipped.Vgg19()
-        # vgg_style = vgg_clipped.Vgg19()
-        # vgg_ref = vgg_clipped.Vgg19()
+        # Initialize VGG net
         vgg_net = vgg_clipped.Vgg19()
-
-        # with tf.name_scope("cont_vgg"):
-        #     vgg_cont.build(np.expand_dims(content_image, 0))
-        # with tf.name_scope("style_vgg"):
-        #     vgg_style.build(np.expand_dims(style_image, 0))
-        # with tf.name_scope("ref_vgg"):
-        #     vgg_ref.build(input_img)
-        # images = tf.placeholder("float", [1, Im_H, Im_W, 3])
 
     with tf.Session(graph=graph, config=tf.ConfigProto(log_device_placement=False)) as sess:
 
         # Get content and style representations
-        # cont_layers = [vgg_cont.conv1_1,vgg_cont.conv2_1,vgg_cont.conv3_1,vgg_cont.conv4_1,vgg_cont.conv5_1, vgg_cont.conv4_2]
         content_activations = stylf.get_activations\
             (sess=sess, net=vgg_net, layer_names=content_layer_names, img=np.expand_dims(content_image, 0))
         style_activations = stylf.get_activations\
             (sess=sess, net=vgg_net, layer_names=style_layer_names, img=np.expand_dims(style_image, 0))
 
         # Input activations
-        input_layer_names = list(set(content_layer_names+style_layer_names))  #  list of all neede layers #['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1', 'conv4_2']
+        input_layer_names = list(set(content_layer_names+style_layer_names))  # list of all needed layers
         # build net using input image
         vgg_net.build(input_img, reset_dict=True)
         # Get tensors of desired layers
         input_activations = dict(zip(input_layer_names, [getattr(vgg_net, layer_name) for layer_name in input_layer_names]))
-        # input_activations = [vgg_ref.conv1_1, vgg_ref.conv2_1, vgg_ref.conv3_1, vgg_ref.conv4_1, vgg_ref.conv5_1, vgg_ref.conv4_2]
 
         # Content loss
-        # L_content = []
-        # selected_layers = ''
         content_loss = tf.add_n([w*stylf.l2_content_loss(content_activations[content_layer_names[i]],
                                                        input_activations[content_layer_names[i]])
                                                        for i, w in enumerate(w_content) if w != 0])
-        # for idx, w in enumerate(w_content):
-        #     if w != 0:
-        #         L_content.append(w * stylf.l2_content_loss(content_activations[content_layer_names[idx]],
-        #                                                input_activations[content_layer_names[idx]]))
 
-        # selected_layers += content_layer_names[idx] + '  '#', conv1_'+str(idx+1)
         print('Content loss based on layers: ', ", ".join([ l_name for i, l_name in enumerate(content_layer_names) if w_content[i]]))
-        # content_loss = tf.add_n(L_content)  # sum weighted content losses
 
-        # Style loss
-        # style_activations = np.stack([style1_1, style2_1, style3_1, style4_1, style5_1])
-        # style_image_matrices = [stylf.gram_matrix(tens) for tens in [style1_1, style2_1, style3_1, style4_1, style5_1]]
-        # input_style_matrices = [stylf.gram_matrix(tens) for tens in input_activations[:5]]
         style_loss = tf.add_n([w*stylf.l2_style_loss(style_activations[style_layer_names[i]],
                                                        input_activations[style_layer_names[i]])
                                                        for i, w in enumerate(w_style) if w != 0])
 
-        # L_style = []
-        # selected_layers = ''
-        # for idx, w in enumerate(w_style):
-        #     if w != 0:
-        #         # norm_factor = np.array(input_activations[idx].get_shape().as_list())
-        #         # print(norm_factor)
-        #         # norm_factor = np.prod(norm_factor) ** 2.0
-        #
-        #         L_style.append(w * stylf.l2_style_loss(style_activations[style_layer_names[idx]],
-        #                                                input_activations[style_layer_names[idx]]))
-        #         selected_layers += style_layer_names[idx] + '  ' # ', conv1_'+str(idx+1)
         print('Style loss based on layers: ', ", ".join([ l_name for i, l_name in enumerate(style_layer_names) if w_style[i]]))
-        # style_loss = tf.add_n(L_style)  # sum weighted content losses
-        # content_loss = tf.constant(0, dtype="float32") #Temporary
 
         # Total Variation loss
         tv_loss = stylf.total_variation_loss(input_img)
-
-        # Clear redundant VGGs for memory
-        # del vgg_style
-        # del vgg_cont
 
         # Content - Style Ratio
         gamma = run_args.gamma  # content/style ratio
         beta = run_args.beta  # Style weight
         alpha = gamma*beta  # Content weight
         theta = run_args.theta  # tv loss coef'
-        # debug
-        # alpha = 0.
-        # beta = 1.
+
         # Total loss
-        loss = tf.constant(alpha, dtype="float32")*content_loss + tf.constant(beta, dtype="float32")*style_loss + tf.constant(theta, dtype="float32")*tv_loss
+        loss = tf.constant(alpha, dtype="float32")*content_loss + tf.constant(beta, dtype="float32")*style_loss +\
+                                                                            tf.constant(theta, dtype="float32")*tv_loss
 
         # Learning Rate
         # Create a variable to track the global step.
