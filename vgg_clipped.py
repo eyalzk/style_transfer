@@ -14,7 +14,7 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 
 class Vgg19(vgg19.Vgg19):
 
-    def build(self, rgb):
+    def build(self, rgb, reset_dict = True):
         """
         load variable from npy to build the VGG
 
@@ -63,6 +63,7 @@ class Vgg19(vgg19.Vgg19):
         self.conv5_4 = self.conv_layer(self.conv5_3, "conv5_4")
         self.pool5 = self.avg_pool(self.conv5_4, 'pool5')
 
-        self.data_dict = None
+        if reset_dict:
+            self.data_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))
 
