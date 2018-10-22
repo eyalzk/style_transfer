@@ -6,15 +6,11 @@ The algorithm renders an image that keeps the content of one reference image whi
 
 
 
-<img src="images/content/eagle.jpg" height="250"> <img src="images/style/psy2.jpg" height="250">
 
 <img src="images/result/eagle3/eagle&psy21.jpg" width="790">
 
 
 
-<img src="images/content/night_king.jpg" height="250"> <img src="images/style/Stars.jpg" height="250">
-
-<img src="images/result/night_king&stars1.jpg" width="790">
 
 
 There's plenty of great explanations on the web regarding how this works so I won't go into detail here... 
@@ -42,6 +38,4 @@ For the trained VGG19 I have used the implementation of [mechrisaa](https://gith
 ### Photo credits:
 
 1. [Eagle](https://www.flickr.com/photos/jacobmeredith/)
-2. Night King - Game of Thrones, HBO
-3. Stars - ESA/Hubble
-4. [Psychedelic art](http://wallpaperspack.info/?p=52239)
+2. [Psychedelic art](http://wallpaperspack.info/?p=52239)
