@@ -3,11 +3,9 @@ from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
 import vgg_clipped
 import style_funcs as stylf
 from scipy import misc
-import math
 import argparse
 from default_params import get_default_params
 import os.path
@@ -57,7 +55,7 @@ def main(run_args):
     init_img = stylf.gen_init_img(out_H, out_W, content_image, noise_ratio)
 
     # Plot images
-    stylf.show_images(content_image, style_image, init_img)
+    stylf.show_images([content_image, style_image, init_img])
 
     # Prepare Tensorflow graph
     graph = tf.Graph()
@@ -108,50 +106,44 @@ def main(run_args):
         theta = run_args.theta  # tv loss coef'
 
         # Total loss
-        loss = tf.constant(alpha, dtype="float32")*content_loss + tf.constant(beta, dtype="float32")*style_loss +\
-                                                                            tf.constant(theta, dtype="float32")*tv_loss
+        loss = alpha*content_loss + beta*style_loss + theta*tv_loss
 
-        # Learning Rate
-        # Create a variable to track the global step.
-        global_step = tf.Variable(0, name='global_step', trainable=False)
-        # global_step = tf.Variable(0)
-
-        # Lower the learning rate by factor of 0.2 each 50 iterations
-        LR = tf.train.exponential_decay(0.02, global_step, 2000, 0.6, staircase=True)
-        # LR = tf.train.exponential_decay(100.0, global_step, 400, 0.6, staircase=True)
+        # Organize loss components
+        losses = {'total_loss': loss,
+                  'content_loss': alpha*content_loss,
+                  'style_loss': beta*style_loss,
+                  'tv_loss': theta*tv_loss}
 
         # Optimizer
         optimizer_type = run_args.optimizer
-        # optimizer = tf.train.GradientDescentOptimizer(LR).minimize(loss, global_step=global_step)
         if optimizer_type == 'adam':
-            optimizer = tf.train.AdamOptimizer(LR).minimize(loss, global_step=global_step)
+
+            global_step = tf.Variable(0, name='global_step', trainable=False)
+
+            # Lower the learning rate by factor of 0.6 each 2000 iterations
+            lr = tf.train.exponential_decay(0.02, global_step, 2000, 0.6, staircase=True)
+            # lr = tf.train.exponential_decay(100.0, global_step, 400, 0.6, staircase=True)
+
+            optimizer = tf.train.AdamOptimizer(lr).minimize(loss, global_step=global_step)
+
         elif optimizer_type == 'lbfgs':
             optimizer = tf.contrib.opt.ScipyOptimizerInterface(loss, method='L-BFGS-B',
                         options={'maxiter': num_iterations})
 
+        tf.global_variables_initializer().run()
+
         print('='*70 + 'INITIALIZATION COMPLETE' + '='*70)
 
-        tf.global_variables_initializer().run()
         if optimizer_type == 'adam':
-            for step in range(num_iterations):
-                _, l, lrate = sess.run([optimizer, loss, LR])
-                if step % 10 == 0:
-                    print('Loss at step %d: %f  ;  Learning Rate: %f' % (step, l, lrate))
-                    [l1, l2, l3] = sess.run([content_loss, style_loss, tv_loss])
-                    print('C_loss: %f, S_loss: %f, tv_loss: %f' % (alpha*l1, beta*l2, theta*l3))
-                if step % 100 == 0 and step != 0:
-                    result = sess.run(result_img)
-                    plt.figure()
-                    plt.imshow(result)
-                    misc.imsave(result_path+str(step)+'.jpg', result)
-                    plt.show()
+            stylf.optimize_adam(sess=sess, optimizer=optimizer, losses=losses, lr=lr, result_img=result_img,
+                                result_path=result_path, num_iterations=num_iterations)
 
         elif optimizer_type == 'lbfgs':
             stylf.optimize_lbfgs(sess, optimizer, loss, result_img, result_path)
 
         # Save output file
         result = sess.run(result_img)
-        stylf.show_images(content_image, style_image, result)
+        stylf.show_images([content_image, style_image, result])
         misc.imsave(result_path, result)
 
 

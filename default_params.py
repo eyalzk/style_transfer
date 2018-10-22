@@ -10,9 +10,9 @@ def get_default_params():
     params['result_path'] = 'images\\result\\bear_bullets\\'
 
     # Training process
-    params['num_iterations'] = 101
-    params['out_width'] = math.floor(100)  # width of output image
-    params['optimizer_type'] = 'lbfgs'
+    params['num_iterations'] = 1001
+    params['out_width'] = math.floor(500)  # width of output image
+    params['optimizer_type'] = 'lbfgs'  # 'lbfgs' or 'adam'
 
     # Layers to collect activations to
     params['content_layer_names'] = ['conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1', 'conv4_2']
