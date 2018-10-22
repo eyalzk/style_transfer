@@ -197,10 +197,6 @@ if __name__ == '__main__':
                         default=params['optimizer_type'], choices=['lbfgs', 'adam'],
                         help='optimizer. (default: %(default)s)')
 
-    parser.add_argument('--content_layers', type=str,
-                        default=params['optimizer_type'], choices=['lbfgs', 'adam'],
-                        help='optimizer. (default: %(default)s)')
-
 
     args = parser.parse_args()
 
