@@ -6,8 +6,6 @@ The algorithm renders an image that keeps the content of one reference image whi
 
 
 
-<img src="images/content/eagle.jpg" height="250"> <img src="images/style/psy2.jpg" height="250">
-
 <img src="images/result/eagle3/eagle&psy21.jpg" width="790">
 
 
